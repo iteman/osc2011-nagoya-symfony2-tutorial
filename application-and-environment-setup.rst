@@ -3,12 +3,12 @@
 アプリケーションと環境のセットアップ
 ==================
 ------------------------------------------------------
-オープンソースカンファレンス2011 Nagoya PHPフレームワークSymfony2 開発チュートリアル
+OSC2011 Nagoya PHPフレームワークSymfony2 開発チュートリアル
 ------------------------------------------------------
 
 概要
 ====
-このドキュメントでは、`オープンソースカンファレンス2011 Nagoya PHPフレームワークSymfony2 開発チュートリアル <https://www.ospn.jp/osc2011-nagoya/modules/eguide/event.php?eid=13>`_ に参加するにあたって、実際に手を動かしていただく場合に必要な事前準備について解説します。
+このドキュメントでは `オープンソースカンファレンス2011 Nagoya PHPフレームワークSymfony2 開発チュートリアル <https://www.ospn.jp/osc2011-nagoya/modules/eguide/event.php?eid=13>`_ に参加される方に向けて、当日実際に手を動かしていただく場合に必要な事前準備について解説します。
 
 .. note:: アプリケーションで使用するホスト名について
 
@@ -16,11 +16,11 @@
 
 動作環境
 ====
-`Symfony2 の実行に必要な要件 | Symfony2日本語ドキュメント <http://docs.symfony.gr.jp/symfony2/reference/requirements.html>`_ を参考に動作環境をチェックします。本チュートリアルではDoctrineを使用するため、PDO拡張モジュールとデータベース固有のPDOドライバも必要となります。
+`Symfony2 の実行に必要な要件 | Symfony2日本語ドキュメント <http://docs.symfony.gr.jp/symfony2/reference/requirements.html>`_ を参考に動作環境をチェックします。本チュートリアルではDoctrineを使用するために `PDO拡張モジュール <http://www.php.net/manual/ja/book.pdo.php>`_ とデータベース固有のPDOドライバも必要となります。
 
 Symfonyのインストール
 ====
-`Symfony のインストールと設定 | Symfony2日本語ドキュメント <http://docs.symfony.gr.jp/symfony2/book/installation.html>`_ を参考にSymfonyをインストールします。以下はインストールの一例です。
+`Symfony のインストールと設定 | Symfony2日本語ドキュメント <http://docs.symfony.gr.jp/symfony2/book/installation.html>`_ を参考にSymfonyをインストールします。以下は筆者の環境におけるインストールの例です。
 
 最初にアーカイブを展開します。
 
@@ -112,11 +112,11 @@ Symfonyのインストール
       OK        Checking that PDO is installed
       OK        Checking that PDO has some drivers installed: mysql, sqlite, sqlite2
 
-次にブラウザから **http://symfony2-osc/config.php** にアクセスし、Webからも動作環境をチェックします。ここでは **app/cache** と **app/logs** ディレクトリにWebサーバが書き込めないという問題が指摘されました。
+次にブラウザから **http://symfony2-osc/config.php** にアクセスし、Webからも動作環境をチェックします。筆者の場合 **app/cache** と **app/logs** ディレクトリにWebサーバが書き込めないという問題が指摘されました。
 
 .. image:: images/config1.png
 
-ターミナルから実際に確認してみると、確かにWebサーバのユーザ・グループ(ユーザ: www-data, グループ: www-data)が書き込まないパーミッションになっていました。
+ターミナルから実際に確認してみると、確かにWebサーバのユーザ・グループ(ユーザ: www-data, グループ: www-data)が書き込めないパーミッションになっていました。
 
 .. code-block:: bash
 
@@ -143,7 +143,7 @@ Symfonyのインストール
     drwxrwsr-x 2 iteman www-data  4096 2011-08-12 16:01 logs/
     ...
 
-次に以下の行を app/console, web/app.php, web/app_dev.php の先頭に追加します。
+次に以下の行を **app/console**, **web/app.php**, **web/app_dev.php** の先頭に追加します。
 
 .. code-block:: bash
 
@@ -154,7 +154,7 @@ Symfonyのインストール
 
 .. image:: images/config2.png
 
-これで Symfony のインストールは完了です。続いてこのページからSymfonyアプリケーションの設定を行うことができますが、その前にデータベースの設定を済ませておくことにします。
+これでSymfonyのインストールは完了です。続いてこのページからSymfonyアプリケーションの設定を行うことができますが、その前にデータベースの設定を済ませておくことにしましょう。
 
 データベースの作成
 ====
