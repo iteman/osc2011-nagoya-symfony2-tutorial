@@ -1,6 +1,6 @@
 Osc\Bundle\DrinkOrderBundle\Entity\DrinkOrder:
   type: entity
-  table: null
+  table: drink_order
   fields:
     id:
       type: integer
