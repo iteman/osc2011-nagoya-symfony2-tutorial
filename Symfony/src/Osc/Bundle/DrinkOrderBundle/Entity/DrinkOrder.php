@@ -2,8 +2,6 @@
 
 namespace Osc\Bundle\DrinkOrderBundle\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * Osc\Bundle\DrinkOrderBundle\Entity\DrinkOrder
  */
