@@ -1,4 +1,5 @@
 <?php
+umask(0002); // This will let the permissions be 0775
 
 // this check prevents access to debug front controllers that are deployed by accident to production servers.
 // feel free to remove this, extend it, or make something more sophisticated.

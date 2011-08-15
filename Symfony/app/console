@@ -1,5 +1,6 @@
 #!/usr/bin/env php
 <?php
+umask(0002); // This will let the permissions be 0775
 
 require_once __DIR__.'/bootstrap.php.cache';
 require_once __DIR__.'/AppKernel.php';
