@@ -26,15 +26,19 @@ Symfonyのインストール
 
 .. code-block:: bash
 
-    $ mkdir -p /path/to/symfony2-osc
-    $ cd /path/to/symfony2-osc
     $ tar zxf /path/to/Symfony_Standard_Vendors_2.0.0.tgz
+
+次に展開されたルートディレクトリの名称を変更します。
+
+.. code-block:: bash
+
+    $ mv Symfony symfony2-osc
 
 次にコマンドラインから動作環境をチェックします。筆者の環境では設定パラメータ **date.timezone** の値が設定されていなかったためエラーが発生しました。
 
 .. code-block:: bash
 
-    $ cd Symfony
+    $ cd /path/to/symfony2-osc
     $ php app/check.php 
     ********************************
     *                              *
@@ -42,7 +46,7 @@ Symfonyのインストール
     *                              *
     ********************************
     
-    php.ini used by PHP: /home/iteman/site-php/config/xdebug/php-cli.ini
+    php.ini used by PHP: /path/to/php.ini
     
     ** WARNING **
     *  The PHP CLI can use a different php.ini file
@@ -70,7 +74,7 @@ Symfonyのインストール
     *                              *
     ********************************
     
-    php.ini used by PHP: /home/iteman/site-php/config/xdebug/php-cli.ini
+    php.ini used by PHP: /path/to/php.ini
     
     ** WARNING **
     *  The PHP CLI can use a different php.ini file
