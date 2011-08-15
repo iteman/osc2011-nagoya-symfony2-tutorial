@@ -1,1 +1,4 @@
-Hello!
+<form action="{{ path('OscDrinkOrderBundle_product') }}" method="post" {{ form_enctype(form) }}>
+  {{ form_widget(form) }}
+  <input type="submit" />
+</form>
