@@ -16,4 +16,14 @@ class DrinkOrderController extends Controller
             ->getForm();
         return $this->render('OscDrinkOrderBundle:DrinkOrder:product.html.twig', array('form' => $form->createView()));
     }
+
+    public function addressAction()
+    {
+        $form = $this->createFormBuilder(new DrinkOrder())
+            ->add('name', 'text')
+            ->add('address', 'text')
+            ->add('phone', 'text')
+            ->getForm();
+        return $this->render('OscDrinkOrderBundle:DrinkOrder:address.html.twig', array('form' => $form->createView()));
+    }
 }
