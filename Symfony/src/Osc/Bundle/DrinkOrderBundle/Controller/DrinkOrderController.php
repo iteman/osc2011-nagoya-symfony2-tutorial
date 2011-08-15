@@ -5,10 +5,10 @@ namespace Osc\Bundle\DrinkOrderBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 
-class DefaultController extends Controller
+class DrinkOrderController extends Controller
 {
-    public function indexAction($name)
+    public function productAction()
     {
-        return $this->render('OscDrinkOrderBundle:Default:index.html.twig', array('name' => $name));
+        return $this->render('OscDrinkOrderBundle:DrinkOrder:product.html.twig');
     }
 }
