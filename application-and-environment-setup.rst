@@ -27,7 +27,8 @@ Symfonyのインストール
 .. code-block:: bash
 
     $ mkdir -p /path/to/symfony2-osc
-    $ tar zxf Symfony_Standard_Vendors_2.0.0.tgz
+    $ cd /path/to/symfony2-osc
+    $ tar zxf /path/to/Symfony_Standard_Vendors_2.0.0.tgz
 
 次にコマンドラインから動作環境をチェックします。筆者の環境では設定パラメータ **date.timezone** の値が設定されていなかったためエラーが発生しました。
 
