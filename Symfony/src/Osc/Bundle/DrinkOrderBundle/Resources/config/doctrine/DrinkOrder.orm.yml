@@ -1,0 +1,14 @@
+Osc\Bundle\DrinkOrderBundle\Entity\DrinkOrder:
+  type: entity
+  table: null
+  fields:
+    id:
+      type: integer
+      id: true
+      generator:
+        strategy: AUTO
+    product_id:
+      type: integer
+    quantity:
+      type: integer
+  lifecycleCallbacks: {  }
