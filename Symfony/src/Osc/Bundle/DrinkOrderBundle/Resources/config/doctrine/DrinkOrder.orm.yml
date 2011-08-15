@@ -11,4 +11,13 @@ Osc\Bundle\DrinkOrderBundle\Entity\DrinkOrder:
       type: integer
     quantity:
       type: integer
+    name:
+      type: string
+      length: 255
+    address:
+      type: string
+      length: 255
+    phone:
+      type: string
+      length: 255
   lifecycleCallbacks: {  }

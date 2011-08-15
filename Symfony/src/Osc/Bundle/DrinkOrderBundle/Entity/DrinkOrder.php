@@ -22,6 +22,20 @@ class DrinkOrder
      */
     private $quantity;
 
+    /**
+     * @var string $name
+     */
+    private $name;
+
+    /**
+     * @var string $address
+     */
+    private $address;
+
+    /**
+     * @var string $phone
+     */
+    private $phone;
 
     /**
      * Get id
@@ -71,5 +85,65 @@ class DrinkOrder
     public function getQuantity()
     {
         return $this->quantity;
+    }
+
+    /**
+     * Set name
+     *
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * Get name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set address
+     *
+     * @param string $address
+     */
+    public function setAddress($address)
+    {
+        $this->address = $address;
+    }
+
+    /**
+     * Get address
+     *
+     * @return string
+     */
+    public function getAddress()
+    {
+        return $this->address;
+    }
+
+    /**
+     * Set phone
+     *
+     * @param string $phone
+     */
+    public function setPhone($phone)
+    {
+        $this->phone = $phone;
+    }
+
+    /**
+     * Get phone
+     *
+     * @return string
+     */
+    public function getPhone()
+    {
+        return $this->phone;
     }
 }
