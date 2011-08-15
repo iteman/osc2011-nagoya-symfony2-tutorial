@@ -215,7 +215,9 @@ Symfonyアプリケーションの設定
 
 .. image:: images/config-final.png
 
-以上でアプリケーションと環境のセットアップは完了です。
+最後にページ下部のリンク **Go to the Welcome page** をクリックしましょう。無事 **Welcome** ページが表示されれば、Symfonyアプリケーションの設定は完了です。
+
+.. image:: images/welcome.png
 
 参考
 ====
