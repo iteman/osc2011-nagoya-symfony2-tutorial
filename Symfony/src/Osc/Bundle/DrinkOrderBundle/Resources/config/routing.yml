@@ -1,3 +1,7 @@
 OscDrinkOrderBundle_product:
     pattern:  /order
     defaults: { _controller: OscDrinkOrderBundle:DrinkOrder:product }
+
+OscDrinkOrderBundle_address:
+    pattern:  /order/address
+    defaults: { _controller: OscDrinkOrderBundle:DrinkOrder:address }
