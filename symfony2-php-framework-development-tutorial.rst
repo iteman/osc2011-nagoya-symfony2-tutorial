@@ -201,7 +201,7 @@ Symfonyではフレームワークが提供する機能だけではなくユー�
 +------------------------------+------------------------------+-----------------------------+
 | **ルート名**                 | OscDrinkOrderBundle_homepage | OscDrinkOrderBundle_product |
 +------------------------------+------------------------------+-----------------------------+
-| **URLパターン**              | /hello/{name}                | /product                    |
+| **URLパターン**              | /hello/{name}                | /order                      |
 +------------------------------+------------------------------+-----------------------------+
 | **ビューテンプレートの内容** | Hello {{ name }}!            | Hello!                      |
 +------------------------------+------------------------------+-----------------------------+
@@ -239,7 +239,7 @@ Symfonyではフレームワークが提供する機能だけではなくユー�
     -    pattern:  /hello/{name}
     -    defaults: { _controller: OscDrinkOrderBundle:Default:index }
     +OscDrinkOrderBundle_product:
-    +    pattern:  /product
+    +    pattern:  /order
     +    defaults: { _controller: OscDrinkOrderBundle:DrinkOrder:product }
     diff --git a/src/Osc/Bundle/DrinkOrderBundle/Resources/views/DrinkOrder/product.html.twig b/src/Osc/Bundle/DrinkOrderBundle/Resources/views/DrinkOrder/product.html.twig
     index 4ce626e..10ddd6d 100644
@@ -670,6 +670,88 @@ Controller::render()メソッドの引数にはFormオブジェクトから作�
 では **http://symfony2-osc/app_dev.php/order/address** にアクセスし、配送先情報入力フォームが表示されることを確認しましょう。
 
 .. image:: images/form-address.png
+
+ページ遷移の実装
+^^^^^^^^^^^^^^^^
+
+これまでの実装で商品選択ページと配送先情報入力ページがそれぞれ表示されるようになりましたが、まだ2つのページは接続されていません。前述のページフローによれば、商品選択ページの送信ボタンをクリックすると配送先情報入力ページに遷移する必要があります。
+
+最初にこの遷移を実現するためのルートを定義しましょう。
+
+**Resources/config/routing.yml** :
+
+.. code-block:: yaml
+
+    OscDrinkOrderBundle_product:
+        pattern:  /order
+        defaults: { _controller: OscDrinkOrderBundle:DrinkOrder:product }
+        requirements: { _method: GET }
+    
+    OscDrinkOrderBundle_product_post:
+        pattern:  /order
+        defaults: { _controller: OscDrinkOrderBundle:DrinkOrder:productPost }
+        requirements: { _method: POST }
+    ...
+
+SymfonyではURLパターンに加えていくつものマッチパターンを指定することができます。ここでは同一のURLに対してリクエストメソッドによって異なるルートを定義しています。この方法には、1つのアクションの場合に必要になるif文をなくすことができるメリットがあります。新たなルートを機能させるために、元からあったルートに対してもリクエストメソッドの指定を行っていることに注意してください。
+
+次にアクションを実装します。
+
+**Controller/DrinkOrderController.php** :
+
+.. code-block:: php
+
+    ...
+    public function productPostAction()
+    {
+        return $this->redirect($this->generateUrl('OscDrinkOrderBundle_address'));
+    }
+
+    public function addressAction()
+    {
+    ...
+
+では **http://symfony2-osc/app_dev.php/order** にアクセスし、適当にフォームを埋めて送信ボタンをクリックしてみましょう。問題がなければ次のページに遷移するはずです。
+
+続けて配送先情報入力ページから注文内容確認ページへの遷移も実装しましょう。遷移先のルートはまだありませんがルート名をOscDrinkOrderBundle_confirmationとしておきます。
+
+**Resources/config/routing.yml** :
+
+.. code-block:: yaml
+
+    ...
+    OscDrinkOrderBundle_address:
+        pattern:  /order/address
+        defaults: { _controller: OscDrinkOrderBundle:DrinkOrder:address }
+        requirements: { _method: GET }
+    
+    OscDrinkOrderBundle_address_post:
+        pattern:  /order/address
+        defaults: { _controller: OscDrinkOrderBundle:DrinkOrder:addressPost }
+        requirements: { _method: POST }
+
+**Controller/DrinkOrderController.php** :
+
+.. code-block:: php
+
+    ...
+    public function addressAction()
+    {
+    ...
+    }
+
+    public function addressPostAction()
+    {
+        return $this->redirect($this->generateUrl('OscDrinkOrderBundle_confirmation'));
+    }
+    ...
+
+
+では先ほどと同様に **http://symfony2-osc/app_dev.php/order/address** にアクセスし、適当にフォームを埋めて送信ボタンをクリックしてみましょう。上手くいきましたか？
+
+.. image:: images/route-not-found.png
+
+まだOscDrinkOrderBundle_confirmationへのルートを定義していないためエラーが発生しますが今のところこれは問題ではありません。遷移の実装は上手くいっています。
 
 参考
 ====
