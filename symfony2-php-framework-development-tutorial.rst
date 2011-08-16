@@ -36,7 +36,7 @@ Symfonyではフレームワークが提供する機能だけではなくユー�
 
 今回はコマンドラインの対話式ジェネレータを使うことにします。ではターミナルから **app/console generate:bundle** コマンドを実行してみましょう。
 
-.. code-block:: bash
+.. code-block:: console
 
     $ app/console generate:bundle
     
@@ -97,10 +97,9 @@ Symfonyではフレームワークが提供する機能だけではなくユー�
       You can now start using the generated code!  
                                                    
     
-
 このコマンドによって以下のファイルおよびディレクトリが作成されました。
 
-.. code-block:: bash
+.. code-block:: console
 
     $ tree /path/to/symfony2-osc/src/Osc/
     src/Osc/
@@ -312,7 +311,7 @@ Resources/views/DrinkOrder/product.html.twig:
 
 さて、ここで現段階で存在していないDrinkOrderオブジェクトを新たに作る必要があります。これには **app/console doctrine:generate:entity** コマンドを使うことができます。
 
-.. code-block:: bash
+.. code-block:: console
 
     $ app/console doctrine:generate:entity
     
