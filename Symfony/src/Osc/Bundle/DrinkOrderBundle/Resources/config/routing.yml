@@ -17,3 +17,13 @@ OscDrinkOrderBundle_address_post:
     pattern:  /order/address
     defaults: { _controller: OscDrinkOrderBundle:DrinkOrder:addressPost }
     requirements: { _method: POST }
+
+OscDrinkOrderBundle_confirmation:
+    pattern:  /order/confirmation
+    defaults: { _controller: OscDrinkOrderBundle:DrinkOrder:confirmation }
+    requirements: { _method: GET }
+
+OscDrinkOrderBundle_confirmation_post:
+    pattern:  /order/confirmation
+    defaults: { _controller: OscDrinkOrderBundle:DrinkOrder:confirmationPost }
+    requirements: { _method: POST }

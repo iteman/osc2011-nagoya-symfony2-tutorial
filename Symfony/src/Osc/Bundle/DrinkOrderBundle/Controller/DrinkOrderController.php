@@ -36,4 +36,15 @@ class DrinkOrderController extends Controller
     {
         return $this->redirect($this->generateUrl('OscDrinkOrderBundle_confirmation'));
     }
+
+    public function confirmationAction()
+    {
+        $form = $this->createFormBuilder(new DrinkOrder())->getForm();
+        return $this->render('OscDrinkOrderBundle:DrinkOrder:confirmation.html.twig', array('form' => $form->createView()));
+    }
+
+    public function confirmationPostAction()
+    {
+        return $this->redirect($this->generateUrl('OscDrinkOrderBundle_success'));
+    }
 }
