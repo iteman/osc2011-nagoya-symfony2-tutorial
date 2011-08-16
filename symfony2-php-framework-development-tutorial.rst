@@ -261,7 +261,7 @@ Symfonyではフレームワークが提供する機能だけではなくユー�
 
 前準備が整ったところで、商品選択ページを作っていきます。商品選択フォームの作成にはSymfonyが提供する `フォーム <http://docs.symfony.gr.jp/symfony2/book/forms.html>`_ 機能を使います。フォームの中心にあるのは **Form** オブジェクトです。今回は **Controller::createFormBuilder()** メソッドを使ってFormオブジェクトを作ることにします。コントローラを以下のように変更してみましょう。
 
-Controller/DrinkOrderController.php:
+**Controller/DrinkOrderController.php** :
 
 .. code-block:: php
 
@@ -293,7 +293,7 @@ Controller::render()メソッドの引数にはFormオブジェクトから作�
 
 コントローラの変更に続いてテンプレートも変更しましょう。
 
-Resources/views/DrinkOrder/product.html.twig:
+**Resources/views/DrinkOrder/product.html.twig** :
 
 .. code-block:: html+jinja
 
@@ -368,7 +368,7 @@ Resources/views/DrinkOrder/product.html.twig:
     
 ここでは前述のフォームに定義したproduct_idおよびquantityフィールドをエンティティに定義しています。このコマンドによって作成されたファイルは2つ、1つはエンティティであるEntity/DrinkOrder.php, もう1つはエンティティとデータベースレコードをマッピングするための定義ファイルResources/config/doctrine/DrinkOrder.orm.ymlです。それぞれの内容を確認してみましょう。
 
-Entity/DrinkOrder.php:
+**Entity/DrinkOrder.php** :
 
 .. code-block:: php
 
@@ -453,7 +453,7 @@ Entity/DrinkOrder.php:
 
 コマンドで明示的に定義したproduct_idおよびquantityフィールドがprivateフィールドとして宣言され、それぞれのセッタ・ゲッタメソッドも宣言されています。加えてエンティティの同一性を表現するためのidフィールドとゲッタメソッドが宣言されています。Doctrine\ORM\Mappingのuseステートメントはマッピング定義にアノテーションを使う場合に必要なものなので、今回は削除しておきましょう。
 
-Resources/config/doctrine/DrinkOrder.orm.yml:
+**Resources/config/doctrine/DrinkOrder.orm.yml** :
 
 .. code-block:: yaml
 
@@ -494,7 +494,7 @@ Resources/config/doctrine/DrinkOrder.orm.yml:
 
 前述の商品選択ページの場合ジェネレータによって生成されたルートを変更しましたが、このページには対応するルートがありませんので最初にルートを定義しましょう。defaults配列の_controller要素の値は、このルートのアクションがDrinkOrderController::addressAction()メソッドであることを示しています。
 
-Resources/config/routing.yml:
+**Resources/config/routing.yml** :
 
 .. code-block:: yaml
 
@@ -508,7 +508,7 @@ Resources/config/routing.yml:
 
 次にコントローラで配送先情報入力フォームを定義します。このフォームではname, address, phoneの3つのフィールドを入力できるようにします。nameはお名前、addressは住所、phoneは電話番号となっています。
 
-Controller/DrinkOrderController.php:
+**Controller/DrinkOrderController.php** :
 
 .. code-block:: php
 
@@ -528,7 +528,7 @@ Controller/DrinkOrderController.php:
 
 続いてaddressAction()メソッドから描画されるテンプレートを作成します。内容としては前述のproduct.html.twigとほぼ同じとなっておりform要素のaction属性の値が異なるだけです。
 
-Resources/views/DrinkOrder/address.html.twig:
+**Resources/views/DrinkOrder/address.html.twig** :
 
 .. code-block:: html+jinja
 
@@ -546,7 +546,7 @@ Resources/views/DrinkOrder/address.html.twig:
 
 最初に以下のようにマッピング定義にname, address, phoneフィールドを追加しましょう。
 
-Resources/config/doctrine/DrinkOrder.orm.yml:
+**Resources/config/doctrine/DrinkOrder.orm.yml** :
 
 .. code-block:: yaml
 
@@ -574,7 +574,7 @@ Resources/config/doctrine/DrinkOrder.orm.yml:
 
 以下はコマンド実行後のエンティティです。クラスの末尾にフィールドとセッタ・ゲッタメソッドが追加されたことがわかります。
 
-Entity/DrinkOrder.php:
+**Entity/DrinkOrder.php** :
 
 .. code-block:: php
 
