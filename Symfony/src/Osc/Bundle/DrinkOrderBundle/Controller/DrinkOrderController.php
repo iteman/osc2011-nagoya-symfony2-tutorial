@@ -31,4 +31,9 @@ class DrinkOrderController extends Controller
             ->getForm();
         return $this->render('OscDrinkOrderBundle:DrinkOrder:address.html.twig', array('form' => $form->createView()));
     }
+
+    public function addressPostAction()
+    {
+        return $this->redirect($this->generateUrl('OscDrinkOrderBundle_confirmation'));
+    }
 }

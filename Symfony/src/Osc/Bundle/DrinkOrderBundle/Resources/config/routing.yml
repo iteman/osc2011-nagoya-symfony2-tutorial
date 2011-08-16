@@ -11,3 +11,9 @@ OscDrinkOrderBundle_product_post:
 OscDrinkOrderBundle_address:
     pattern:  /order/address
     defaults: { _controller: OscDrinkOrderBundle:DrinkOrder:address }
+    requirements: { _method: GET }
+
+OscDrinkOrderBundle_address_post:
+    pattern:  /order/address
+    defaults: { _controller: OscDrinkOrderBundle:DrinkOrder:addressPost }
+    requirements: { _method: POST }
