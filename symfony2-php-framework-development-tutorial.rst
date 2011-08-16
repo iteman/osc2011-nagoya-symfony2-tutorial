@@ -174,7 +174,7 @@ Symfonyではフレームワークが提供する機能だけではなくユー�
 ページフローの実装
 ==================
 
-では早速アプリケーションの実装を始めます。今回は最初にページフローを実装し、Web 上で一通りの動作が確認できるようにします。
+では早速アプリケーションの実装を始めます。今回は最初にページフローを実装し、Web上で一通りのページ遷移が確認できるようにします。
 
 最初のページ - 商品選択ページ
 -----------------------------
@@ -476,7 +476,7 @@ Controller::render()メソッドの引数にはFormオブジェクトから作�
 
 ここまでの変更が終わったら **http://symfony2-osc/app_dev.php/order** にアクセスします。無事フォームが表示されたでしょうか？
 
-.. image:: images/form-product.png
+.. image:: images/order-product.png
 
 .. note:: ドメインオブジェクトの配置場所
 
@@ -669,7 +669,7 @@ Controller::render()メソッドの引数にはFormオブジェクトから作�
 
 では **http://symfony2-osc/app_dev.php/order/address** にアクセスし、配送先情報入力フォームが表示されることを確認しましょう。
 
-.. image:: images/form-address.png
+.. image:: images/order-address.png
 
 ページ遷移の実装
 ^^^^^^^^^^^^^^^^
@@ -744,14 +744,99 @@ SymfonyではURLパターンに加えていくつものマッチパターンを�
     {
         return $this->redirect($this->generateUrl('OscDrinkOrderBundle_confirmation'));
     }
-    ...
 
 
 では先ほどと同様に **http://symfony2-osc/app_dev.php/order/address** にアクセスし、適当にフォームを埋めて送信ボタンをクリックしてみましょう。上手くいきましたか？
 
-.. image:: images/route-not-found.png
+.. image:: images/order-route-not-found.png
 
 まだOscDrinkOrderBundle_confirmationへのルートを定義していないためエラーが発生しますが今のところこれは問題ではありません。遷移の実装は上手くいっています。
+
+3つ目のページ - 注文内容確認ページ
+----------------------------------
+
+当面の目標はページフローの実装のみなので、残りの2つのページと遷移はこれまでの応用で一気に実装してしまいましょう。変更点は以下のようになります。
+
+**Resources/config/routing.yml** :
+
+.. code-block:: yaml
+
+    ...
+    OscDrinkOrderBundle_confirmation:
+        pattern:  /order/confirmation
+        defaults: { _controller: OscDrinkOrderBundle:DrinkOrder:confirmation }
+        requirements: { _method: GET }
+    
+    OscDrinkOrderBundle_confirmation_post:
+        pattern:  /order/confirmation
+        defaults: { _controller: OscDrinkOrderBundle:DrinkOrder:confirmationPost }
+        requirements: { _method: POST }
+
+**Controller/DrinkOrderController.php** :
+
+.. code-block:: php
+
+    ...
+    public function confirmationAction()
+    {
+        $form = $this->createFormBuilder(new DrinkOrder())->getForm();
+        return $this->render('OscDrinkOrderBundle:DrinkOrder:confirmation.html.twig', array('form' => $form->createView()));
+    }
+
+    public function confirmationPostAction()
+    {
+        return $this->redirect($this->generateUrl('OscDrinkOrderBundle_success'));
+    }
+
+**Resources/views/DrinkOrder/confirmation.html.twig** :
+
+.. code-block:: html+jinja
+
+    <form action="{{ path('OscDrinkOrderBundle_confirmation') }}" method="post" {{ form_enctype(form) }}>
+      {{ form_widget(form) }}
+      <input type="submit" />
+    </form>
+
+変更が完了したら **http://symfony2-osc/app_dev.php/order/address** にアクセスし、配送先情報入力ページから注文内容確認ページ、注文内容確認ページから注文完了ページに遷移できるか確認しましょう。
+
+.. image:: images/order-confirmation.png
+
+最後のページ - 注文完了ページ
+-----------------------------
+
+いよいよ最後のページです。変更点は以下のようになります。
+
+**Resources/config/routing.yml** :
+
+.. code-block:: yaml
+
+    ...
+    OscDrinkOrderBundle_success:
+        pattern:  /order/success
+        defaults: { _controller: OscDrinkOrderBundle:DrinkOrder:success }
+        requirements: { _method: GET }
+
+**Controller/DrinkOrderController.php** :
+
+.. code-block:: php
+
+    ...
+    public function successAction()
+    {
+        return $this->render('OscDrinkOrderBundle:DrinkOrder:success.html.twig');
+    }
+
+**Resources/views/DrinkOrder/success.html.twig** :
+
+.. code-block:: html+jinja
+
+    ご注文ありがとうございました。
+
+変更が完了したら **http://symfony2-osc/app_dev.php/order/confirmation** にアクセスし、注文内容確認ページから注文完了ページに遷移できるか確認しましょう。問題なければ、最初のページから最後のページまでの遷移を確認します。
+
+.. image:: images/order-success.png
+
+以上でページフローの実装はひとまず完了です。
 
 参考
 ====
