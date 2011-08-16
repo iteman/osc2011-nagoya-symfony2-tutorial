@@ -17,6 +17,11 @@ class DrinkOrderController extends Controller
         return $this->render('OscDrinkOrderBundle:DrinkOrder:product.html.twig', array('form' => $form->createView()));
     }
 
+    public function productPostAction()
+    {
+        return $this->redirect($this->generateUrl('OscDrinkOrderBundle_address'));
+    }
+
     public function addressAction()
     {
         $form = $this->createFormBuilder(new DrinkOrder())
