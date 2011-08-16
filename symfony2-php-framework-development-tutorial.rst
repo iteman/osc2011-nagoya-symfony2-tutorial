@@ -291,7 +291,7 @@ Controller::createFormBuilder()メソッドの返り値を使って直接フォ�
 
 Controller::render()メソッドの引数にはFormオブジェクトから作成したFormViewオブジェクトを渡しています。FormViewオブジェクトはテンプレートのヘルパー関数から参照するために使われます。
 
-コントローラの変更に続いてテンプレートも変更しましょう。
+次はテンプレートの変更です。
 
 **Resources/views/DrinkOrder/product.html.twig** :
 
