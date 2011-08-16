@@ -27,3 +27,8 @@ OscDrinkOrderBundle_confirmation_post:
     pattern:  /order/confirmation
     defaults: { _controller: OscDrinkOrderBundle:DrinkOrder:confirmationPost }
     requirements: { _method: POST }
+
+OscDrinkOrderBundle_success:
+    pattern:  /order/success
+    defaults: { _controller: OscDrinkOrderBundle:DrinkOrder:success }
+    requirements: { _method: GET }

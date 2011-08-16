@@ -47,4 +47,9 @@ class DrinkOrderController extends Controller
     {
         return $this->redirect($this->generateUrl('OscDrinkOrderBundle_success'));
     }
+
+    public function successAction()
+    {
+        return $this->render('OscDrinkOrderBundle:DrinkOrder:success.html.twig');
+    }
 }
