@@ -1,4 +1,10 @@
-<form action="{{ path('OscDrinkOrderBundle_address') }}" method="post" {{ form_enctype(form) }}>
-  {{ form_widget(form) }}
-  <input type="submit" />
-</form>
+{% extends "OscDrinkOrderBundle::layout.html.twig" %}
+
+{% block title %}配送先情報入力 | {{ parent() }}{% endblock %}
+
+{% block content %}
+  <form action="{{ path('OscDrinkOrderBundle_address') }}" method="post" {{ form_enctype(form) }}>
+    {{ form_widget(form) }}
+    <input type="submit" />
+  </form>
+{% endblock %}
