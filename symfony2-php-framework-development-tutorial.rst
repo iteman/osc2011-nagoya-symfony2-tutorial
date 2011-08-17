@@ -835,6 +835,61 @@ SymfonyではURLパターンに加えていくつものマッチパターンを�
 
 以上でページフローの実装はひとまず完了です。
 
+レイアウトテンプレートの導入
+----------------------------
+
+これまで作ってきたページはまだ内容がありませんが、それにしても何か足りない気がしないでしょうか？ **Welcome** ページはどんな感じだったのか **http://symfony2-osc/app_dev.php/** にアクセスして確認してみましょう。
+
+.. image:: images/welcome.png
+
+そうです、Welcomeページの下部にある **Webデバッグツールバー** がこれまで作ってきたページでは表示されないのです。Webデバッグツールバーが差し込まれるようにするには、レスポンスが **</body>** タグを含むHTMLページでなければなりません。
+
+それぞれのページがHTML全体を表現するように変更を加えても構いませんが、ここはWebデバッグツールバーを表示するためのブロックを持つ **レイアウトテンプレート** を作って、それぞれのページのテンプレートがそれを継承するようにしましょう。
+
+最初にレイアウトテンプレートを作りましょう。
+
+**Resources/views/layout.html.twig** :
+
+.. code-block:: html+jinja
+
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>{% block title %}飲料注文アプリケーション{% endblock %}</title>
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" />
+      </head>
+      <body>
+        <div>
+          {% block content %}
+          {% endblock %}
+        </div>
+      </body>
+    </html>
+
+今回はStandard Editionに含まれるAcmeDemoBundleを参考に上記のようなテンプレートを作ってみました。contentブロックでページの内容、titleブロックでページのタイトルを表現しています。
+
+次にレイアウトテンプレートを使うように、商品選択ページのテンプレートを変更しましょう。
+
+.. code-block:: html+jinja
+
+    {% extends "OscDrinkOrderBundle::layout.html.twig" %}
+    
+    {% block title %}商品選択 | {{ parent() }}{% endblock %}
+    
+    {% block content %}
+      <form action="{{ path('OscDrinkOrderBundle_product') }}" method="post" {{ form_enctype(form) }}>
+        {{ form_widget(form) }}
+        <input type="submit" />
+      </form>
+    {% endblock %}
+
+では商品選択ページを表示してみましょう。
+
+.. image:: images/order-product-with-toolbar.png
+
+ご覧の通り無事ツールバーが表示されました。残りのテンプレートも同様に変更しておきましょう。
+
 参考
 ====
 
