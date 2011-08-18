@@ -10,7 +10,9 @@ class DrinkOrderController extends Controller
 {
     public function productAction()
     {
-        $this->container->get('session')->set('drinkOrder', new DrinkOrder());
+        if (!$this->container->get('session')->has('drinkOrder')) {
+            $this->container->get('session')->set('drinkOrder', new DrinkOrder());
+        }
         $form = $this->createFormBuilder($this->container->get('session')->get('drinkOrder'))
             ->add('product_id', 'choice', array( 'choices' => array('1' => 'BlueBull 128個入ケース', '2' => 'GreenBull 128個入ケース')))
             ->add('quantity', 'text')

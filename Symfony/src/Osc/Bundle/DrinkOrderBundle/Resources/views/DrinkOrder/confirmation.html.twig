@@ -14,4 +14,10 @@
     {{ form_widget(form) }}
     <input type="submit" />
   </form>
+  <div>
+    <a href="{{ path('OscDrinkOrderBundle_product') }}">商品の再選択</a>
+  </div>
+  <div>
+    <a href="{{ path('OscDrinkOrderBundle_address') }}">配送先情報の修正</a>
+  </div>
 {% endblock %}
