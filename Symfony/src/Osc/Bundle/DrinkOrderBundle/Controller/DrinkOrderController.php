@@ -68,8 +68,15 @@ class DrinkOrderController extends Controller
     {
         $form = $this->createFormBuilder($this->container->get('session')->get('drinkOrder'))->getForm();
         $form->bindRequest($this->getRequest());
-        $this->container->get('session')->remove('drinkOrder');
-        return $this->redirect($this->generateUrl('OscDrinkOrderBundle_success'));
+        if ($form->isValid()) {
+            $this->container->get('session')->remove('drinkOrder');
+            return $this->redirect($this->generateUrl('OscDrinkOrderBundle_success'));
+        } else {
+            return $this->render('OscDrinkOrderBundle:DrinkOrder:confirmation.html.twig', array(
+                'form' => $form->createView(),
+                'drinkOrder' => $this->container->get('session')->get('drinkOrder')
+            ));
+        }
     }
 
     public function successAction()
