@@ -1,0 +1,10 @@
+Osc\Bundle\DrinkOrderBundle\Entity\DrinkOrder:
+  properties:
+    product_id:
+      - NotBlank: ~
+      - Min: 1
+      - Max: 2
+    quantity:
+      - NotBlank: ~
+      - Min: 1
+      - Max: 8

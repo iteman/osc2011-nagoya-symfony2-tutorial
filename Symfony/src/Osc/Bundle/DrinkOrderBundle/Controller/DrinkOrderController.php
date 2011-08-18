@@ -23,7 +23,11 @@ class DrinkOrderController extends Controller
     {
         $form = $this->createForm(new ProductDrinkOrderType(), $this->container->get('session')->get('drinkOrder'));
         $form->bindRequest($this->getRequest());
-        return $this->redirect($this->generateUrl('OscDrinkOrderBundle_address'));
+        if ($form->isValid()) {
+            return $this->redirect($this->generateUrl('OscDrinkOrderBundle_address'));
+        } else {
+            return $this->render('OscDrinkOrderBundle:DrinkOrder:product.html.twig', array('form' => $form->createView()));
+        }
     }
 
     public function addressAction()
