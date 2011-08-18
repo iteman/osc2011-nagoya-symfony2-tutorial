@@ -10,7 +10,8 @@ class DrinkOrderController extends Controller
 {
     public function productAction()
     {
-        $form = $this->createFormBuilder(new DrinkOrder())
+        $this->container->get('session')->set('drinkOrder', new DrinkOrder());
+        $form = $this->createFormBuilder($this->container->get('session')->get('drinkOrder'))
             ->add('product_id', 'choice', array( 'choices' => array('1' => 'BlueBull 128個入ケース', '2' => 'GreenBull 128個入ケース')))
             ->add('quantity', 'text')
             ->getForm();
@@ -19,12 +20,17 @@ class DrinkOrderController extends Controller
 
     public function productPostAction()
     {
+        $form = $this->createFormBuilder($this->container->get('session')->get('drinkOrder'))
+            ->add('product_id', 'choice', array( 'choices' => array('1' => 'BlueBull 128個入ケース', '2' => 'GreenBull 128個入ケース')))
+            ->add('quantity', 'text')
+            ->getForm();
+        $form->bindRequest($this->getRequest());
         return $this->redirect($this->generateUrl('OscDrinkOrderBundle_address'));
     }
 
     public function addressAction()
     {
-        $form = $this->createFormBuilder(new DrinkOrder())
+        $form = $this->createFormBuilder($this->container->get('session')->get('drinkOrder'))
             ->add('name', 'text')
             ->add('address', 'text')
             ->add('phone', 'text')
@@ -34,17 +40,28 @@ class DrinkOrderController extends Controller
 
     public function addressPostAction()
     {
+        $form = $this->createFormBuilder($this->container->get('session')->get('drinkOrder'))
+            ->add('name', 'text')
+            ->add('address', 'text')
+            ->add('phone', 'text')
+            ->getForm();
+        $form->bindRequest($this->getRequest());
         return $this->redirect($this->generateUrl('OscDrinkOrderBundle_confirmation'));
     }
 
     public function confirmationAction()
     {
-        $form = $this->createFormBuilder(new DrinkOrder())->getForm();
-        return $this->render('OscDrinkOrderBundle:DrinkOrder:confirmation.html.twig', array('form' => $form->createView()));
+        $form = $this->createFormBuilder($this->container->get('session')->get('drinkOrder'))->getForm();
+        return $this->render('OscDrinkOrderBundle:DrinkOrder:confirmation.html.twig', array(
+            'form' => $form->createView(),
+            'drinkOrder' => $this->container->get('session')->get('drinkOrder')
+        ));
     }
 
     public function confirmationPostAction()
     {
+        $form = $this->createFormBuilder($this->container->get('session')->get('drinkOrder'))->getForm();
+        $form->bindRequest($this->getRequest());
         return $this->redirect($this->generateUrl('OscDrinkOrderBundle_success'));
     }
 

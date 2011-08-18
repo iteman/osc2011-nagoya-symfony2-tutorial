@@ -3,6 +3,13 @@
 {% block title %}注文内容確認 | {{ parent() }}{% endblock %}
 
 {% block content %}
+  <ul>
+    <li>商品: {{ drinkOrder.productId }}</li>
+    <li>個数: {{ drinkOrder.quantity }}</li>
+    <li>名前: {{ drinkOrder.name }}</li>
+    <li>住所: {{ drinkOrder.address }}</li>
+    <li>電話番号: {{ drinkOrder.phone }}</li>
+  </ul>
   <form action="{{ path('OscDrinkOrderBundle_confirmation') }}" method="post" {{ form_enctype(form) }}>
     {{ form_widget(form) }}
     <input type="submit" />
