@@ -893,6 +893,145 @@ SymfonyではURLパターンに加えていくつものマッチパターンを�
 セッションの導入
 ================
 
+ここまでで一方向ながらページフローの実装が完了しました。しかし注文内容確認ページにはせっかく入力した情報が表示されていませんし、そもそもリクエストをまたがるデータの保持については何も実装していない状態です。では早速セッションを導入してみましょう。
+
+DrinkOrderオブジェクトの登録
+----------------------------
+
+まずは最初のリクエストを担当するproductAction()メソッドを以下のように変更します。
+
+**Controller/DrinkOrderController.php** :
+
+.. code-block:: php
+
+    ...
+    public function productAction()
+    {
+        $this->container->get('session')->set('drinkOrder', new DrinkOrder());
+        $form = $this->createFormBuilder($this->container->get('session')->get('drinkOrder'))
+            ->add('product_id', 'choice', array( 'choices' => array('1' => 'BlueBull 128個入ケース', '2' => 'GreenBull 128個入ケース')))
+            ->add('quantity', 'text')
+            ->getForm();
+        return $this->render('OscDrinkOrderBundle:DrinkOrder:product.html.twig', array('form' => $form->createView()));
+    }
+   ...
+
+Symfonyはユーザセッションの状態を管理するために **session** サービスを使います。最初のリクエストでは新しいDrinkOrderオブジェクトをセッションに登録します。createFromBuilder()メソッドの引数にはセッションから取得したDrinkOrderオブジェクトを渡すようにします。
+
+続いて送信ボタンをクリックされたときのアクションであるproductPostAction()メソッドを以下のように変更します。
+
+**Controller/DrinkOrderController.php** :
+
+.. code-block:: php
+
+    ...
+    public function productPostAction()
+    {
+        $form = $this->createFormBuilder($this->container->get('session')->get('drinkOrder'))
+            ->add('product_id', 'choice', array( 'choices' => array('1' => 'BlueBull 128個入ケース', '2' => 'GreenBull 128個入ケース')))
+            ->add('quantity', 'text')
+            ->getForm();
+        $form->bindRequest($this->getRequest());
+        return $this->redirect($this->generateUrl('OscDrinkOrderBundle_address'));
+    }
+    ...
+
+フォームから送信されたデータをDrinkOrderオブジェクトに結びつけるためには、フォーム表示の場合と同じ仕様を持つFormオブジェクトが必要になります。実際の結びつけには **Form::bindRequest()** メソッドを使います。残りのアクションについても同様の変更を行なっておきます。
+
+次に注文内容確認ページに確認用の情報を表示させましょう。これにはセッションから取得したDrinkOrderオブジェクトを使うことができます。
+
+**Controller/DrinkOrderController.php** :
+
+    ...
+    public function confirmationAction()
+    {
+        $form = $this->createFormBuilder($this->container->get('session')->get('drinkOrder'))->getForm();
+        return $this->render('OscDrinkOrderBundle:DrinkOrder:confirmation.html.twig', array(
+            'form' => $form->createView(),
+            'drinkOrder' => $this->container->get('session')->get('drinkOrder')
+        ));
+    }
+    ...
+
+**Resources/views/DrinkOrder/confirmation.html.twig** :
+
+.. code-block:: html+jinja
+
+    ...
+    <ul>
+      <li>商品: {{ drinkOrder.productId }}</li>
+      <li>個数: {{ drinkOrder.quantity }}</li>
+      <li>名前: {{ drinkOrder.name }}</li>
+      <li>住所: {{ drinkOrder.address }}</li>
+      <li>電話番号: {{ drinkOrder.phone }}</li>
+    </ul>
+    <form action="{{ path('OscDrinkOrderBundle_product') }}" method="post" {{ form_enctype(form) }}>
+    ...
+
+では最初のページにアクセスし、注文内容確認ページまで進めてみましょう。
+
+.. image:: images/order-confirmation-with-data.png
+
+入力内容の修正
+--------------
+
+冒頭で示したページフローでは、入力内容の修正のために注文内容確認ページから商品選択ページ・配送先情報入力ページへ戻れるようになっていました。これをサポートするために配送先情報入力ページを変更しましょう。
+
+**Resources/views/DrinkOrder/confirmation.html.twig** :
+
+.. code-block:: html+jinja
+
+    ...
+      <form action="{{ path('OscDrinkOrderBundle_confirmation') }}" method="post" {{ form_enctype(form) }}>
+        {{ form_widget(form) }}
+        <input type="submit" />
+      </form>
+      <div>
+        <a href="{{ path('OscDrinkOrderBundle_product') }}">商品の再選択</a>
+      </div>
+      <div>
+        <a href="{{ path('OscDrinkOrderBundle_address') }}">配送先情報の修正</a>
+      </div>
+    {% endblock %}
+
+そういえばproductAction()メソッドでは新しいDrinkOrderオブジェクトを無条件でセッションに登録していましたので、セッションに存在しない場合のみ登録するように変更しておきます。
+
+**Controller/DrinkOrderController.php** :
+
+.. code-block:: php
+
+    ...
+    public function productAction()
+    {
+        if (!$this->container->get('session')->has('drinkOrder')) {
+            $this->container->get('session')->set('drinkOrder', new DrinkOrder());
+        }
+        $form = $this->createFormBuilder($this->container->get('session')->get('drinkOrder'))
+    ...
+
+ではアクセスして動作を確認してみましょう。
+
+注文完了時の初期化
+------------------
+
+今のままでは注文完了後に他のページにアクセスした場合にも前回の入力値が表示されてしまいますので、注文完了時はセッションからデータを削除しておく方がいいでしょう。
+
+**Controller/DrinkOrderController.php** :
+
+.. code-block:: php
+
+    ...
+    public function confirmationPostAction()
+    {
+        $form = $this->createFormBuilder($this->container->get('session')->get('drinkOrder'))->getForm();
+        $form->bindRequest($this->getRequest());
+        $this->container->get('session')->remove('drinkOrder');
+        return $this->redirect($this->generateUrl('OscDrinkOrderBundle_success'));
+    }
+    ...
+
+以上でセッションの導入は完了です。
+
 バリデーションの実装
 ====================
 
