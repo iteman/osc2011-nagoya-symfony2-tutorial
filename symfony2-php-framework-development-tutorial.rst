@@ -942,6 +942,8 @@ Symfonyはユーザセッションの状態を管理するために **session** 
 
 **Controller/DrinkOrderController.php** :
 
+.. code-block:: php
+
     ...
     public function confirmationAction()
     {
