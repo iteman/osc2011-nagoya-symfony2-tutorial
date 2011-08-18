@@ -1034,8 +1034,263 @@ Symfonyはユーザセッションの状態を管理するために **session** 
 
 以上でセッションの導入は完了です。
 
+フォームの組み立てコードの外部化
+--------------------------------
+
+セッションを導入したことでフォームの組み立てコードの重複が目立つようになりました。幸いSymfonyはフォームの組み立て処理を外部化するための仕組みを提供しています。フォームフィールドの組み合わせに対してそれぞれクラスを用意します。
+
+**Form/Type/ProductDrinkOrderType.php** :
+
+.. code-block:: php
+
+    <?php
+    namespace Osc\Bundle\DrinkOrderBundle\Form\Type;
+    
+    use Symfony\Component\Form\AbstractType;
+    use Symfony\Component\Form\FormBuilder;
+    
+    class ProductDrinkOrderType extends AbstractType
+    {
+        public function buildForm(FormBuilder $builder, array $options)
+        {
+            $builder->add('product_id', 'choice', array( 'choices' => array('1' => 'BlueBull 128個入ケース', '2' => 'GreenBull 128個入ケース')));
+            $builder->add('quantity', 'text');
+        }
+    
+        public function getName()
+        {
+            return 'product_drink_order';
+        }
+    }
+    
+**Form/Type/AddressDrinkOrderType.php** :
+
+.. code-block:: php
+
+    <?php
+    namespace Osc\Bundle\DrinkOrderBundle\Form\Type;
+    
+    use Symfony\Component\Form\AbstractType;
+    use Symfony\Component\Form\FormBuilder;
+    
+    class AddressDrinkOrderType extends AbstractType
+    {
+        public function buildForm(FormBuilder $builder, array $options)
+        {
+            $builder->add('name', 'text');
+            $builder->add('address', 'text');
+            $builder->add('phone', 'text');
+        }
+    
+        public function getName()
+        {
+            return 'address_drink_order';
+        }
+    }
+
+これらのフォームタイプを使ってコントローラを書き換えます。
+
+**Controller/DrinkOrderController.php** :
+
+.. code-block:: php
+
+    ...
+    use Osc\Bundle\DrinkOrderBundle\Form\Type\AddressDrinkOrderType;
+    use Osc\Bundle\DrinkOrderBundle\Form\Type\ProductDrinkOrderType;
+    
+    class DrinkOrderController extends Controller
+    {
+        public function productAction()
+        {
+            if (!$this->container->get('session')->has('drinkOrder')) {
+                $this->container->get('session')->set('drinkOrder', new DrinkOrder());
+            }
+            $form = $this->createForm(new ProductDrinkOrderType(), $this->container->get('session')->get('drinkOrder'));
+    ...
+    
+        public function addressAction()
+        {
+            $form = $this->createForm(new AddressDrinkOrderType(), $this->container->get('session')->get('drinkOrder'));
+    ...
+
+これでコードが随分すっきりしました。
+
 バリデーションの実装
 ====================
+
+次はフォーム入力値に対するバリデーションを実装します。バリデーションの対象となるのは、ページフローに現れるすべてのフォーム、すなわち商品選択フォーム、配送先情報入力フォーム、注文内容確認フォームの3つです。
+
+最初のフォーム - 商品選択フォーム
+---------------------------------
+
+まずは最初のフォームである商品選択フォームから実装していきましょう。
+
+**Resources/config/validation.yml** :
+
+.. code-block:: yaml
+
+Osc\Bundle\DrinkOrderBundle\Entity\DrinkOrder:
+  properties:
+    product_id:
+      - NotBlank: ~
+      - Min: 1
+      - Max: 2
+    quantity:
+      - NotBlank: ~
+      - Min: 1
+      - Max: 8
+
+**Form::isValid()** メソッドによるフォームのバリデーションの実体は、Formオブジェクトに設定されているドメインオブジェクトに対するバリデーションの呼び出しです。よって今回はDrinkOrderエンティティに対して **制約** と呼ばれるバリデーションのルールを定義する必要があります。
+
+制約の定義が完了したら適切な場所でForm::isValid()メソッドを呼び出すようにコントローラを変更します。
+
+**Controller/DrinkOrderController.php** :
+
+.. code-block:: php
+
+    ...
+    public function productPostAction()
+    {
+        $form = $this->createForm(new ProductDrinkOrderType(), $this->container->get('session')->get('drinkOrder'));
+        $form->bindRequest($this->getRequest());
+        if ($form->isValid()) {
+            return $this->redirect($this->generateUrl('OscDrinkOrderBundle_address'));
+        } else {
+            return $this->render('OscDrinkOrderBundle:DrinkOrder:product.html.twig', array('form' => $form->createView()));
+        }
+    }
+    ...
+
+バリデーションが成功した場合は今までどおりに配送先情報入力ページにリダイレクトします。失敗した場合は再度フォームを表示します。
+
+変更が完了したら動作確認を行います。わざとバリデーションを失敗させてみましょう。元のフォームにエラーメッセージが表示されればコードは正しく動作しています。
+
+.. image:: images/validation-failed.png
+
+2つ目のフォーム - 配送先情報入力フォーム
+----------------------------------------
+
+続いて2つ目のフォーム、配送先情報入力フォームの実装です。まずは先ほどと同じように制約を定義し、コントローラを変更します。
+
+**Resources/config/validation.yml** :
+
+.. code-block:: yaml
+
+    ...
+    name: &text
+      - NotBlank: ~
+      - MaxLength: 255
+    address: *text
+    phone: *text
+
+**Controller/DrinkOrderController.php** :
+
+.. code-block:: php
+
+    ...
+    public function addressPostAction()
+    {
+        $form = $this->createForm(new AddressDrinkOrderType(), $this->container->get('session')->get('drinkOrder'));
+        $form->bindRequest($this->getRequest());
+        if ($form->isValid()) {
+            return $this->redirect($this->generateUrl('OscDrinkOrderBundle_confirmation'));
+        } else {
+            return $this->render('OscDrinkOrderBundle:DrinkOrder:address.html.twig', array('form' => $form->createView()));
+        }
+    }
+    ...
+
+では最初のページから動作確認してみてください。
+
+.. image:: images/validation-unexpected.png
+
+商品選択フォームで正しい値を入力したにも関わらず、新たに追加した制約の数のエラーが発生してしまいました。これは新たな制約が機能しているからであり正しい動作です。我々はそれぞれのフォームタイプに対応するフィールドのみをバリデーションしたいのですが、そのためにはどうすればいいのでしょうか？
+
+この問題に対する1つの解決策は `バリデーショングループ <http://symfony.com/doc/2.0/book/validation.html#validation-groups>`_ の使用です。まずバリデーション定義を以下のように変更しましょう。
+
+**Resources/config/validation.yml** :
+
+.. code-block:: yaml
+
+    Osc\Bundle\DrinkOrderBundle\Entity\DrinkOrder:
+      properties:
+        product_id:
+          - NotBlank: { groups: [product] }
+          - Min: { limit: 1, groups: [product] }
+          - Max: { limit: 2, groups: [product] }
+        quantity:
+          - NotBlank: { groups: [product] }
+          - Min: { limit: 1, groups: [product] }
+          - Max: { limit: 8, groups: [product] }
+        name: &text
+          - NotBlank: { groups: [address] }
+          - MaxLength: { limit: 255, groups: [address] }
+        address: *text
+        phone: *text
+
+ご覧のように制約毎にgroups要素を定義しており、その値によって制約をグループ化することができます。次にフォームバリデーションでバリデーショングループを使うためにコントローラを以下のように変更します。
+
+**Controller/DrinkOrderController.php** :
+
+.. code-block:: php
+
+    ...
+    public function productPostAction()
+    {
+        $form = $this->createForm(
+            new ProductDrinkOrderType(),
+            $this->container->get('session')->get('drinkOrder'),
+            array('validation_groups' => array('product'))
+        );
+        $form->bindRequest($this->getRequest());
+    ...
+    public function addressPostAction()
+    {
+        $form = $this->createForm(
+            new AddressDrinkOrderType(),
+            $this->container->get('session')->get('drinkOrder'),
+            array('validation_groups' => array('address'))
+        );
+        $form->bindRequest($this->getRequest());
+    ...
+
+では動作確認を行いましょう。
+
+.. image:: images/validation-groups.png
+
+今度は上手くいきました。
+
+.. note:: 文脈依存のバリデーション (Contextual Validation)
+
+    同一のドメインオブジェクトに対して文脈毎に異なるバリデーションを行いたい場合があります。今回の例のような同一ページフロー中のフォーム毎のバリデーションも文脈依存のバリデーションといえますが、異なるアプリケーションで必要になる場合もあるでしょう。例えば、アカウント登録時にはユーザオブジェクトに対してメールアドレスとログインパスワードのバリデーションを行い、アカウント情報変更時にはユーザオブジェクトに対して電話番号や住所のバリデーションを行う、といった具合です。筆者はバリデーションの再利用は制約単位よりもフィールド単位の方が有用だと考えていますので現在のバリデーショングループが使いやすいとは思っておらず、現在優れた実装パターンを模索中です。文脈毎にドメインオブジェクトを継承し、それに対するバリデーションを定義するという方法は良さそうに思えますが、Symfonyの実装に阻まれており(クラスの継承によってバリデーション定義も継承されるのです！)実現には至っておりません。何か良いアイデアがあれば是非筆者までご連絡ください。
+
+最後のフォーム - 注文内容確認フォーム
+-------------------------------------
+
+最後に3つ目のフォーム、注文内容確認フォームの実装です。このフォームにはバリデーションすべきフィールドがありませんので、実装はコントローラの変更のみとなります。
+
+**Controller/DrinkOrderController.php** :
+
+.. code-block:: php
+
+    ...
+    public function confirmationPostAction()
+    {
+        $form = $this->createFormBuilder($this->container->get('session')->get('drinkOrder'))->getForm();
+        $form->bindRequest($this->getRequest());
+        if ($form->isValid()) {
+            $this->container->get('session')->remove('drinkOrder');
+            return $this->redirect($this->generateUrl('OscDrinkOrderBundle_success'));
+        } else {
+            return $this->render('OscDrinkOrderBundle:DrinkOrder:confirmation.html.twig', array(
+                'form' => $form->createView(),
+                'drinkOrder' => $this->container->get('session')->get('drinkOrder')
+            ));
+        }
+    }
+    ...
+
+以上でバリデーションの実装は完了です。
 
 データベースへの保存
 ====================
@@ -1045,6 +1300,8 @@ Symfonyはユーザセッションの状態を管理するために **session** 
 
 * `フォーム | Symfony2日本語ドキュメント <http://docs.symfony.gr.jp/symfony2/book/forms.html>`_
 * `ルーティング | Symfony2日本語ドキュメント <http://docs.symfony.gr.jp/symfony2/book/routing.html#controller-string-syntax>`_
+* `Symfony - Validation <http://symfony.com/doc/2.0/book/validation.html>`_
 * `ビジネスオブジェクト - Wikipedia <http://ja.wikipedia.org/wiki/%E3%83%93%E3%82%B8%E3%83%8D%E3%82%B9%E3%82%AA%E3%83%96%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88>`_
 * `ドメインモデル - Wikipedia <http://ja.wikipedia.org/wiki/%E3%83%89%E3%83%A1%E3%82%A4%E3%83%B3%E3%83%A2%E3%83%87%E3%83%AB>`_
 * `『エリック・エヴァンスのドメイン駆動設計 (IT Architects’Archive ソフトウェア開発の実践 )』、翔泳社、2011年、ISBN 978­4798121963 <http://www.amazon.co.jp/%E3%82%A8%E3%83%AA%E3%83%83%E3%82%AF%E3%83%BB%E3%82%A8%E3%83%B4%E3%82%A1%E3%83%B3%E3%82%B9%E3%81%AE%E3%83%89%E3%83%A1%E3%82%A4%E3%83%B3%E9%A7%86%E5%8B%95%E8%A8%AD%E8%A8%88-Architects%E2%80%99Archive-%E3%82%BD%E3%83%95%E3%83%88%E3%82%A6%E3%82%A7%E3%82%A2%E9%96%8B%E7%99%BA%E3%81%AE%E5%AE%9F%E8%B7%B5-%E3%82%A8%E3%83%AA%E3%83%83%E3%82%AF%E3%83%BB%E3%82%A8%E3%83%B4%E3%82%A1%E3%83%B3%E3%82%B9/dp/4798121967>`_
+* `ContextualValidation <http://martinfowler.com/bliki/ContextualValidation.html>`_
