@@ -64,6 +64,7 @@ class DrinkOrderController extends Controller
     {
         $form = $this->createFormBuilder($this->container->get('session')->get('drinkOrder'))->getForm();
         $form->bindRequest($this->getRequest());
+        $this->container->get('session')->remove('drinkOrder');
         return $this->redirect($this->generateUrl('OscDrinkOrderBundle_success'));
     }
 
