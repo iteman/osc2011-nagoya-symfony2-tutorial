@@ -21,7 +21,11 @@ class DrinkOrderController extends Controller
 
     public function productPostAction()
     {
-        $form = $this->createForm(new ProductDrinkOrderType(), $this->container->get('session')->get('drinkOrder'));
+        $form = $this->createForm(
+            new ProductDrinkOrderType(),
+            $this->container->get('session')->get('drinkOrder'),
+            array('validation_groups' => array('product'))
+        );
         $form->bindRequest($this->getRequest());
         if ($form->isValid()) {
             return $this->redirect($this->generateUrl('OscDrinkOrderBundle_address'));
@@ -38,9 +42,17 @@ class DrinkOrderController extends Controller
 
     public function addressPostAction()
     {
-        $form = $this->createForm(new AddressDrinkOrderType(), $this->container->get('session')->get('drinkOrder'));
+        $form = $this->createForm(
+            new AddressDrinkOrderType(),
+            $this->container->get('session')->get('drinkOrder'),
+            array('validation_groups' => array('address'))
+        );
         $form->bindRequest($this->getRequest());
-        return $this->redirect($this->generateUrl('OscDrinkOrderBundle_confirmation'));
+        if ($form->isValid()) {
+            return $this->redirect($this->generateUrl('OscDrinkOrderBundle_confirmation'));
+        } else {
+            return $this->render('OscDrinkOrderBundle:DrinkOrder:address.html.twig', array('form' => $form->createView()));
+        }
     }
 
     public function confirmationAction()
