@@ -1292,8 +1292,74 @@ Osc\Bundle\DrinkOrderBundle\Entity\DrinkOrder:
 
 以上でバリデーションの実装は完了です。
 
-データベースへの保存
-====================
+データベースへのオブジェクトの保存
+==================================
+
+そのそろこの辺で注文内容をデータベースに保存することにしましょう。
+
+テーブルの作成
+--------------
+
+現段階ではDrinkOrderオブジェクトの保存先となるテーブルすら存在しておりませんので **app/console doctrine:schema:create** コマンドを使ってテーブルを作成します。
+
+.. code-block:: console
+
+    $ app/console doctrine:schema:create
+    ATTENTION: This operation should not be executed in a production environment.
+    
+    Creating database schema...
+    Database schema created successfully!
+
+成功したようです。念のためデータベースを確認しておきます。
+
+.. code-block:: console
+
+    mysql> show tables;
+    +------------------------+
+    | Tables_in_symfony2_osc |
+    +------------------------+
+    | drink_order            |
+    +------------------------+
+    1 row in set (0.00 sec)
+
+オブジェクトの保存
+------------------
+
+次にコントローラを以下のように変更します。
+
+**Controller/DrinkOrderController.php** :
+
+.. code-block:: php
+
+    ...
+    public function confirmationPostAction()
+    {
+        $form = $this->createFormBuilder($this->container->get('session')->get('drinkOrder'))->getForm();
+        $form->bindRequest($this->getRequest());
+        if ($form->isValid()) {
+            $em = $this->getDoctrine()->getEntityManager();
+            $em->persist($this->container->get('session')->get('drinkOrder'));
+            $em->flush();
+            $this->container->get('session')->remove('drinkOrder');
+            return $this->redirect($this->generateUrl('OscDrinkOrderBundle_success'));
+        } else {
+    ...
+
+コントローラのインスタンスを経由して取得したEntityManagerオブジェクトの **persist()** メソッドにセッションに保存されているDrinkOrderオブジェクトを渡しています。 **flush()** メソッドの呼び出しによって実際の保存が行われることになります。
+
+では動作確認を行い、注文が完了したらデータベースを確認しましょう。
+
+.. code-block:: console
+
+    mysql> select * from drink_order;
+    +----+------------+----------+--------+---------+------------+
+    | id | product_id | quantity | name   | address | phone      |
+    +----+------------+----------+--------+---------+------------+
+    |  1 |          2 |        8 | iteman | Osaka   | 0663985061 |
+    +----+------------+----------+--------+---------+------------+
+    1 row in set (0.00 sec)
+
+どうやら成功したようですね。
 
 参考
 ====
