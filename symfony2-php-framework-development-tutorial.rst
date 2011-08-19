@@ -8,6 +8,8 @@ Copyright (c) 2011 KUBO Atsuhiro <kubo@iteman.jp>, All rights reserved.
 
 This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/ or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
 
+.. sectnum::
+
 .. contents:: 目次
 
 飲料注文アプリケーション
@@ -1365,7 +1367,14 @@ Osc\Bundle\DrinkOrderBundle\Entity\DrinkOrder:
     +----+------------+----------+--------+---------+------------+
     1 row in set (0.00 sec)
 
-どうやら成功したようですね。
+どうやら成功したようです。
+
+ページフローの厳格化とCSRF対策
+==============================
+
+前のセクションでアプリケーションの動作としてはほぼ完成の段階に来ました。ここで冒頭に示したページフローを再度見てみましょう。
+
+.. image:: images/page-flow.png
 
 参考
 ====
