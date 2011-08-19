@@ -563,7 +563,7 @@ Controller::render()メソッドの引数にはFormオブジェクトから作�
 
 次に **app/console doctrine:generate:entities** コマンドを実行します。
 
-.. code-block:: bash
+.. code-block:: console
 
     $ app/console doctrine:generate:entities OscDrinkOrderBundle:DrinkOrder
     Generating entity "Osc\Bundle\DrinkOrderBundle\Entity\DrinkOrder"
