@@ -1137,16 +1137,16 @@ Symfonyはユーザセッションの状態を管理するために **session** 
 
 .. code-block:: yaml
 
-Osc\Bundle\DrinkOrderBundle\Entity\DrinkOrder:
-  properties:
-    product_id:
-      - NotBlank: ~
-      - Min: 1
-      - Max: 2
-    quantity:
-      - NotBlank: ~
-      - Min: 1
-      - Max: 8
+    Osc\Bundle\DrinkOrderBundle\Entity\DrinkOrder:
+      properties:
+        product_id:
+          - NotBlank: ~
+          - Min: 1
+          - Max: 2
+        quantity:
+          - NotBlank: ~
+          - Min: 1
+          - Max: 8
 
 **Form::isValid()** メソッドによるフォームのバリデーションの実体は、Formオブジェクトに設定されているドメインオブジェクトに対するバリデーションの呼び出しです。よって今回はDrinkOrderエンティティに対して **制約** と呼ばれるバリデーションのルールを定義する必要があります。
 
