@@ -276,11 +276,10 @@ Symfonyではフレームワークが提供する機能だけではなくユー�
     
     use Symfony\Bundle\FrameworkBundle\Controller\Controller;
     
-    use Osc\Bundle\OscDrinkOrderBundle\Entity\DrinkOrder;
-
+    use Osc\Bundle\DrinkOrderBundle\Entity\DrinkOrder;
+    
     class DrinkOrderController extends Controller
     {
-        
         public function productAction()
         {
             $form = $this->createFormBuilder(new DrinkOrder())
@@ -290,7 +289,6 @@ Symfonyではフレームワークが提供する機能だけではなくユー�
             return $this->render('OscDrinkOrderBundle:DrinkOrder:product.html.twig', array('form' => $form->createView()));
         }
     }
-    
 
 Controller::createFormBuilder()メソッドの返り値を使って直接フォームの要素を定義しています。1つ目のフィールドproduct_idは商品選択のためのフィールドです。実際には商品はデータベースから取得される場合がほとんどでしょう。ここではアプリケーションを簡単にするために直接定義します。2つ目のフィールドquantityは個数を入力するためのフィールドです。今回は商品に価格も定義されていないため、注文いただいた個数をどーんと無料で差し上げることにしましょう。
 
