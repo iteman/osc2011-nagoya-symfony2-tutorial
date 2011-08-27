@@ -12,6 +12,11 @@ This work is licensed under the Creative Commons Attribution-ShareAlike 3.0 Unpo
 
 .. contents:: 目次
 
+はじめに
+========
+
+このチュートリアルではSymfonyのWebアプリケーションフレームワーク部分にフォーカスを当て、Symfonyを使って少し複雑なページフローを持つアプリケーションをどのように実装するのかについて説明します。
+
 飲料注文アプリケーション
 ========================
 
@@ -1367,12 +1372,131 @@ Symfonyはユーザセッションの状態を管理するために **session** 
 
 どうやら成功したようです。
 
-ページフローの厳格化とCSRF対策
-==============================
+ページフローの制御とCSRF対策
+============================
 
-前のセクションでアプリケーションの動作としてはほぼ完成の段階に来ました。ここで冒頭に示したページフローを再度見てみましょう。
+前のセクションでアプリケーションの動作としてはほぼ完成の段階に来ましたが、今のままではいきなり中間のページにアクセスされた場合の対策がありません。これに対してはページフローの制御を行うことで予期しない動作を防ぐ必要があります。加えてCSRF対策を行いアプリケーションのセキュリティを高める必要もあります。
+
+ページフローの制御
+------------------
+
+ここで冒頭に示したページフローを再度見てみましょう。
 
 .. image:: images/page-flow.png
+
+予期しないアプリケーションの動作を防ぐためはフローのルートを制御する必要があります。とはいってもSymfonyの標準機能では完全な制御は難しいため、条件分岐が拡散しすぎない程度に留めておくのが現実的でしょう。
+
+ここでは予期しない遷移を検出した場合に商品選択ページにリダイレクトするようにコントローラを変更します。
+
+**Controller/DrinkOrderController.php** :
+
+.. code-block:: php
+
+    ...
+    const STATE_PRODUCT = 'STATE_PRODUCT';
+    const STATE_ADDRESS = 'STATE_ADDRESS';
+    const STATE_CONFIRMATION = 'STATE_CONFIRMATION';
+    const STATE_SUCCESS = 'STATE_SUCCESS';
+
+    public function productAction()
+    {
+        $this->container->get('session')->set('state', self::STATE_PRODUCT);
+    ...
+
+    public function productPostAction()
+    {
+        if (!($this->container->get('session')->has('state')
+              && $this->container->get('session')->get('state') == self::STATE_PRODUCT)) {
+            return $this->redirect($this->generateUrl('OscDrinkOrderBundle_product'));
+        }
+    ...
+        if ($form->isValid()) {
+            $this->container->get('session')->set('state', self::STATE_ADDRESS);
+    ...
+
+    public function addressAction()
+    {
+        if (!($this->container->get('session')->has('state')
+              && ($this->container->get('session')->get('state') == self::STATE_ADDRESS
+                  || $this->container->get('session')->get('state') == self::STATE_CONFIRMATION))) {
+            return $this->redirect($this->generateUrl('OscDrinkOrderBundle_product'));
+        }
+
+        $this->container->get('session')->set('state', self::STATE_ADDRESS);
+    ...
+
+    public function addressPostAction()
+    {
+        if (!($this->container->get('session')->has('state')
+              && $this->container->get('session')->get('state') == self::STATE_ADDRESS)) {
+            return $this->redirect($this->generateUrl('OscDrinkOrderBundle_product'));
+        }
+    ...
+        if ($form->isValid()) {
+            $this->container->get('session')->set('state', self::STATE_CONFIRMATION);
+    ...
+
+    public function confirmationAction()
+    {
+        if (!($this->container->get('session')->has('state')
+              && $this->container->get('session')->get('state') == self::STATE_CONFIRMATION)) {
+            return $this->redirect($this->generateUrl('OscDrinkOrderBundle_product'));
+        }
+    ...
+
+    public function confirmationPostAction()
+    {
+        if (!($this->container->get('session')->has('state')
+              && $this->container->get('session')->get('state') == self::STATE_CONFIRMATION)) {
+            return $this->redirect($this->generateUrl('OscDrinkOrderBundle_product'));
+        }
+    ...
+        if ($form->isValid()) {
+            $em = $this->getDoctrine()->getEntityManager();
+            $em->persist($this->container->get('session')->get('drinkOrder'));
+            $em->flush();
+            $this->container->get('session')->remove('state');
+            $this->container->get('session')->setFlash('state', self::STATE_SUCCESS);
+            $this->container->get('session')->remove('drinkOrder');
+    ...
+
+    public function successAction()
+    {
+        if (!($this->container->get('session')->hasFlash('state')
+              && $this->container->get('session')->getFlash('state') == self::STATE_SUCCESS)) {
+            return $this->redirect($this->generateUrl('OscDrinkOrderBundle_product'));
+        }
+    ...
+
+変更が終わったら実際にいろいろなルートをチェックしてみましょう。例えば、新規セッションで **http://symfony2-osc/app_dev.php/order/success** にアクセスします。完了ページが表示されずに、商品選択ページが表示されればOKです。
+
+.. note:: ページフローエンジン
+
+    `Piece_Flow <http://redmine.piece-framework.com/projects/piece-flow>`_ のようなページフローエンジンを使うことで、ページフローを完全に制御することが極めて簡単になります。残念ながらPiece_FlowのSymfonyインテグレーションはまだありません。作者のやる気自体はあるようですがリソース不足のため後回しになっています…
+
+CSRF対策
+--------
+
+Webページ閲覧者に対する代表的な攻撃手法の一つである `クロスサイトリクエストフォージェリ(CSRF: Cross-site request forgery) <http://ja.wikipedia.org/wiki/%E3%82%AF%E3%83%AD%E3%82%B9%E3%82%B5%E3%82%A4%E3%83%88%E3%83%AA%E3%82%AF%E3%82%A8%E3%82%B9%E3%83%88%E3%83%95%E3%82%A9%E3%83%BC%E3%82%B8%E3%82%A7%E3%83%AA>` ですが実はすでに対策は完了しています。これはFormオブジェクトにはデフォルトでCSRF対策が組み込まれおり、form_widget()関数によって各フォームに埋めこまれている検証用文字列(**トークン**)がForm::isValid()メソッドの呼び出しによって検証されているためです。
+
+実際にブラウザのツールを使ってトークンを確認してみましょう。
+
+.. image:: images/csrf-token.png
+
+さらにトークンの値を変更してバリデーションエラーが発生することも確認してみましょう。
+
+.. image:: images/csrf-error.png
+
+まとめ
+======
+
+*最もよくできたアーキテクチャフレームワークは、複雑な技術的問題を解決する一方で、ドメイン開発者がモデルを表現することに集中できるようにする。しかし、フレームワークは、ドメインについての設計の選択肢を制限する前提を多く設けすぎたり、開発の速度を低下させるほど実装を重苦しくしてしまったりすることで、用意に開発の妨げとなり得るのだ。
+...
+フレームワークを適用する場合、チームはその目標に集中しなければならない。それはすなわち、ドメインモデルを表現し、重要な問題を解決するためにそのモデルを使用するような実装を構築するということである。チームは、この目標を達成するためにフレームワークを採用する道を模索しなければならない。それがフレームワークのすべての機能を使用しないことを意味しても構わない。(『エリック・エヴァンスのドメイン駆動設計』より)*
+
+このチュートリアルではSymfonyのWebアプリケーションフレームワーク部分にフォーカスを当ててきました。そしてWebアプリケーションの技術的課題の多くがSymfonyによって解決されることの一端をお見せすることができたのではないかと思います。
+
+アプリケーション開発者にとって最も重要なのは、対象領域の本質的な知識をドメインモデルとして体系化し、それをドメインオブジェクトとしてソフトウェアに落としこむことで現実世界で機能させることです。PHPの数あるアーキテクチャフレームワークの中でも、Symfonyはそのような活動において最も効果を発揮するものの一つだといえるでしょう。
 
 参考
 ====
