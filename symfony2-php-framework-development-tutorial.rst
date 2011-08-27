@@ -1185,7 +1185,7 @@ Symfonyはユーザセッションの状態を管理するために **session** 
     ...
     name: &text
       - NotBlank: ~
-      - MaxLength: 255
+      - MaxLength: 16
     address: *text
     phone: *text
 
@@ -1230,7 +1230,7 @@ Symfonyはユーザセッションの状態を管理するために **session** 
           - Max: { limit: 8, groups: [product] }
         name: &text
           - NotBlank: { groups: [address] }
-          - MaxLength: { limit: 255, groups: [address] }
+          - MaxLength: { limit: 16, groups: [address] }
         address: *text
         phone: *text
 
